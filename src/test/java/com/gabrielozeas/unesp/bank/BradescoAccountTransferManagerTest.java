@@ -1,12 +1,6 @@
 package com.gabrielozeas.unesp.bank;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 
@@ -34,40 +28,6 @@ public class BradescoAccountTransferManagerTest {
 		
 		creditAcc = new Account();
 		creditAcc.setBank(Bank.BRADESCO);
-	}
-	
-	@Test
-	public void shouldTransferTedWith3400Value() throws Exception {
-		debtAcc.credit(new BigDecimal("3400"));
-		creditAcc.setBank(Bank.ITAU);
-		
-		BradescoTedAccountTransfer ted = mock(BradescoTedAccountTransfer.class);
-		transferManager.setTedAccountTransfer(ted);
-		
-		Transaction transaction = new Transaction(debtAcc, creditAcc, new BigDecimal("3400"));
-		when(ted.transfer(any(Account.class), any(Account.class), eq(new BigDecimal("3400")))).thenReturn(transaction);
-		
-		Transaction returnedTransaction = transferManager.transfer(debtAcc, creditAcc, new BigDecimal("3400"));
-		
-		verify(ted, times(1)).transfer(debtAcc, creditAcc, new BigDecimal("3400"));
-		assertEquals(transaction, returnedTransaction);
-	}
-	
-	@Test
-	public void shouldTransferDocWith3200Value() throws Exception {
-		debtAcc.credit(new BigDecimal("3200"));
-		creditAcc.setBank(Bank.ITAU);
-		
-		final Transaction transaction = new Transaction(debtAcc, creditAcc, new BigDecimal("3200"));
-		
-		transferManager.setDocAccountTransfer(new BradescoDocAccountTransfer(){
-			public Transaction transfer(Account debtAccount, Account creditAccount, BigDecimal value) throws TransferException {
-				return transaction;
-			}
-		});
-		
-		Transaction returnedTransaction = transferManager.transfer(debtAcc, creditAcc, new BigDecimal("3200"));
-		assertEquals(transaction, returnedTransaction);
 	}
 	
 	@Test(expected=NoMoneyBabyException.class)
