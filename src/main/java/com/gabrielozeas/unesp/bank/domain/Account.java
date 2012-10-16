@@ -1,6 +1,8 @@
 package com.gabrielozeas.unesp.bank.domain;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Account {
 	public enum Bank {
@@ -10,17 +12,42 @@ public class Account {
 	private Bank bank;
 	private String agency;
 	private String account;
-	private String name;
-	private String cpf;
+	
+	private Client owner;
+	private List<Client> partners = new ArrayList<Client>();
 
 	private BigDecimal balance = new BigDecimal("0");
 
-	public void debt(BigDecimal value) {
+	public Account debt(BigDecimal value) {
 		balance = balance.subtract(value);
+		return this;
 	}
 
-	public void credit(BigDecimal value) {
+	public Account credit(BigDecimal value) {
 		balance = balance.add(value);
+		return this;
+	}
+	
+	public Account addPartner(Client client) {
+		partners.add(client);
+		return this;
+	}
+
+	public Client getOwner() {
+		return owner;
+	}
+
+	public Account setOwner(Client owner) {
+		this.owner = owner;
+		return this;
+	}
+
+	public List<Client> getPartners() {
+		return partners;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
 	}
 
 	public Bank getBank() {
@@ -46,23 +73,7 @@ public class Account {
 	public void setAccount(String account) {
 		this.account = account;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getCpf() {
-		return cpf;
-	}
-
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
-	}
-
+	
 	public BigDecimal getBalance() {
 		return balance;
 	}
