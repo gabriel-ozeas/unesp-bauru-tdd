@@ -10,6 +10,7 @@ import com.gabrielozeas.unesp.bank.domain.Account;
 import com.gabrielozeas.unesp.bank.domain.Client;
 import com.gabrielozeas.unesp.bank.domain.Transaction;
 import com.gabrielozeas.unesp.bank.exception.NotAuthorizatedException;
+import com.gabrielozeas.unesp.bank.permission.PermissionManagerImpl;
 
 public class PermissionManagerImplTest {
 	
