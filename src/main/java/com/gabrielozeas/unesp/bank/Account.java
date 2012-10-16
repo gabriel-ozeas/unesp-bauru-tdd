@@ -13,7 +13,7 @@ public class Account {
 	private String name;
 	private String cpf;
 
-	private BigDecimal balance;
+	private BigDecimal balance = new BigDecimal("0");
 
 	public void debt(BigDecimal value) {
 		balance = balance.subtract(value);
