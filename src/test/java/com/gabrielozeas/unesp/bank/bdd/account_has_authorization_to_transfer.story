@@ -1,4 +1,4 @@
-Scenario: account transfer is authorized
+Scenario: account transfer is authorized by owner
 
 Given a account with balance of 5000
 And owner Gabriel
