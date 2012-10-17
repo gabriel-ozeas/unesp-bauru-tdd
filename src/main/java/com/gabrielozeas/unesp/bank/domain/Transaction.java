@@ -1,6 +1,7 @@
 package com.gabrielozeas.unesp.bank.domain;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 public class Transaction {
@@ -8,6 +9,7 @@ public class Transaction {
 	private Account debtAccount;
 	private Account creditAccount;
 	private BigDecimal value;
+	private Date date = new Date();
 	
 	public Transaction(){
 		generateTransactionNumber();
@@ -52,4 +54,11 @@ public class Transaction {
 		this.value = value;
 	}
 
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
 }

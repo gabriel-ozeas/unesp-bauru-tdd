@@ -7,6 +7,15 @@ import java.util.List;
 public class Account {
 	public enum Bank {
 		BRADESCO, ITAU, SANTANDER, HSBC;
+		
+		public static Bank getBank(String requestedBank) {
+			for (Bank bank : Bank.values()) {
+				if (bank.name().equals(requestedBank)) {
+					return bank;
+				}
+			}
+			return null;
+		}
 	}
 
 	private Bank bank;

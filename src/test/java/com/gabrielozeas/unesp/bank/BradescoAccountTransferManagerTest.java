@@ -1,11 +1,9 @@
 package com.gabrielozeas.unesp.bank;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -20,20 +18,26 @@ import com.gabrielozeas.unesp.bank.exception.NoMoneyBabyException;
 
 public class BradescoAccountTransferManagerTest {
 	
-	private BradescoAccountTransferManager transferManager;
+	private AccountTransferManager transferManager;
+	
+	private Transaction transaction;
 	
 	private Account debtAcc;
 	private Account creditAcc;
 	
 	@Before
 	public void init() throws Exception {
-		transferManager = new BradescoAccountTransferManager();
+		transferManager = new AccountTransferManager();
 		
 		debtAcc = new Account();
 		debtAcc.setBank(Bank.BRADESCO);
 		
 		creditAcc = new Account();
 		creditAcc.setBank(Bank.BRADESCO);
+		
+		transaction = new Transaction();
+		transaction.setDebtAccount(debtAcc);
+		transaction.setCreditAccount(creditAcc);
 	}
 	
 	@Test
@@ -41,16 +45,14 @@ public class BradescoAccountTransferManagerTest {
 		debtAcc.credit(new BigDecimal("3400"));
 		creditAcc.setBank(Bank.ITAU);
 		
-		BradescoTedAccountTransfer ted = mock(BradescoTedAccountTransfer.class);
+		TedAccountTransfer ted = mock(TedAccountTransfer.class);
 		transferManager.setTedAccountTransfer(ted);
 		
 		Transaction transaction = new Transaction(debtAcc, creditAcc, new BigDecimal("3400"));
-		when(ted.transfer(any(Account.class), any(Account.class), eq(new BigDecimal("3400")))).thenReturn(transaction);
+		when(ted.transfer(null)).thenReturn(transaction);
 		
-		Transaction returnedTransaction = transferManager.transfer(debtAcc, creditAcc, new BigDecimal("3400"));
-		
-		verify(ted, times(1)).transfer(debtAcc, creditAcc, new BigDecimal("3400"));
-		assertEquals(transaction, returnedTransaction);
+		transferManager.transfer(transaction);
+		verify(ted, times(1)).transfer(transaction);
 	}
 	
 	@Test
@@ -60,19 +62,21 @@ public class BradescoAccountTransferManagerTest {
 		
 		final Transaction transaction = new Transaction(debtAcc, creditAcc, new BigDecimal("3200"));
 		
-		transferManager.setDocAccountTransfer(new BradescoDocAccountTransfer(){
-			public Transaction transfer(Account debtAccount, Account creditAccount, BigDecimal value) throws TransferException {
+		transferManager.setDocAccountTransfer(new DocAccountTransfer(){
+			public Transaction transfer(Transaction transaction) throws TransferException {
 				return transaction;
 			}
 		});
 		
-		Transaction returnedTransaction = transferManager.transfer(debtAcc, creditAcc, new BigDecimal("3200"));
+		Transaction returnedTransaction = transferManager.transfer(transaction);
 		assertEquals(transaction, returnedTransaction);
 	}
 	
 	@Test(expected=NoMoneyBabyException.class)
 	public void shouldThrowExceptionIfDebtAccountHasNoMoney() throws Exception {
-		transferManager.transfer(debtAcc, creditAcc, new BigDecimal("20"));
+		debtAcc.setBalance(new BigDecimal("10"));
+		transaction.setValue(new BigDecimal("20"));
+		transferManager.transfer(transaction);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -80,19 +84,15 @@ public class BradescoAccountTransferManagerTest {
 		debtAcc.setBank(Bank.ITAU);
 		debtAcc.credit(new BigDecimal("20"));
 		
-		transferManager.transfer(debtAcc, creditAcc, new BigDecimal("20"));
+		transferManager.transfer(transaction);
 	}
 	
 	@Test
 	public void shouldTransferToAccountsWithSucess() throws Exception {
 		debtAcc.credit(new BigDecimal("20"));
-
-		Transaction transaction = transferManager.transfer(debtAcc, creditAcc, new BigDecimal("20"));
+		transaction.setValue(new BigDecimal("20"));
+		transferManager.transfer(transaction);
 		assertEquals(new BigDecimal("0"), debtAcc.getBalance());
 		assertEquals(new BigDecimal("20"), creditAcc.getBalance());
-		
-		assertEquals(debtAcc, transaction.getDebtAccount());
-		assertEquals(creditAcc, transaction.getCreditAccount());
-		assertEquals(new BigDecimal("20"), transaction.getValue());
 	}
 }
