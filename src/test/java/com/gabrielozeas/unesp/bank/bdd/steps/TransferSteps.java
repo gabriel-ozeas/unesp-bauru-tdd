@@ -3,10 +3,13 @@ package com.gabrielozeas.unesp.bank.bdd.steps;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Pending;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 
 import com.gabrielozeas.unesp.bank.AccountTransferManager;
 import com.gabrielozeas.unesp.bank.TedAccountTransfer;
@@ -14,12 +17,14 @@ import com.gabrielozeas.unesp.bank.domain.Account;
 import com.gabrielozeas.unesp.bank.domain.Account.Bank;
 import com.gabrielozeas.unesp.bank.domain.Client;
 import com.gabrielozeas.unesp.bank.domain.Transaction;
+import com.gabrielozeas.unesp.bank.exception.NotAuthorizatedException;
 
 public class TransferSteps {
 	private Account debtAccount;
 	private Transaction transaction;
+	private Throwable throwable;
 	
-	@Given("a account with balance of $balance")
+	@Given("a account with balance of ${balance}")
 	public void givenAAccountWithBalance(double balance) {
 		debtAccount = new Account();
 		debtAccount.setBank(Bank.BRADESCO);
@@ -31,6 +36,15 @@ public class TransferSteps {
 		Client owner = new Client();
 		owner.setName(ownerName);
 		debtAccount.setOwner(owner);
+	}
+	
+	@Given("partners $partnerNames")
+	public void givenPartnersJoaoMaria(List<String> partnerNames) {
+		for (String name : partnerNames) {
+			Client partner = new Client();
+			partner.setName(name);
+			debtAccount.addPartner(partner);
+		}
 	}
 	
 	@When("owner request transfer of ${amount} to ${bank}")
@@ -45,7 +59,11 @@ public class TransferSteps {
 	public void whenATransferHappens() throws Exception {
 		AccountTransferManager transferManager = new AccountTransferManager();
 		transferManager.setTedAccountTransfer(new TedAccountTransfer());
-		transferManager.transfer(transaction);
+		try {
+			transferManager.transfer(transaction);
+		} catch (Throwable t) {
+			throwable = t;
+		}
 	} 
 
 	@When("owner authorize the transfer")
